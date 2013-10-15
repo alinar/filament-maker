@@ -64,24 +64,31 @@ void Filament::PlaceElements(){
 	const double l=13;
 	const double a = 1.732;
 	const double b = 1.000;
-	const double alpha =5;
-	const double displacement=2;
+	const double alpha = 5;
+	const double displacement=9;
 	const double k=1/cos(alpha * M_PI / 180.0);
-	double torsion_addetive_angle=atan(displacement*sin(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
-	double torsion_addetive_angle_2=atan(0.5*l*sin(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
+	double torsion_addetive_angle=atan(displacement*tan(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
+	double torsion_addetive_angle_2=atan((l/k - 5*displacement)*tan(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
+	double torsion_addetive_angle_3=2*atan((0.5*l)*sin(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
 	cout << torsion_addetive_angle << endl;
-
-	for (int s=0 ; s<3 ; s++){
+	cout << torsion_addetive_angle_2 << endl;
+	for (int s=0 ; s<20 ; s++){
 		for (int i=0 ; i<6 ; i++){
 			AddCylinder();
 			//cylinders.back()->actor->RotateZ(alpha);
 			cylinders.back()->actor->SetPosition(0,i*displacement + s*l/k,r*k);
+			cout << cylinders.back()->actor->GetPosition()[0]<< " , "<<cylinders.back()->actor->GetPosition()[1]<<" , "<<cylinders.back()->actor->GetPosition()[2] << endl;
 			cylinders.back()->actor->SetOrigin(0,0,-r*k);
 			cylinders.back()->actor->RotateWXYZ(-1 * i * (60 + torsion_addetive_angle)
-					- 2 * s * torsion_addetive_angle_2,0,1,0); //YES!!
+					+ -1 * s * torsion_addetive_angle_3,0,1,0);
+//					+ -1 * s * ( 5 *  (60 + torsion_addetive_angle) + (60 + torsion_addetive_angle_2) )
+//					, 0 , 1 , 0 );
+			cout << cylinders.back()->actor->GetPosition()[0]<< " , "<<cylinders.back()->actor->GetPosition()[1]<<" , "<<cylinders.back()->actor->GetPosition()[2] << endl;
+
 			cylinders.back()->actor->RotateZ(alpha);
+			cout << cylinders.back()->actor->GetPosition()[0]<< " , "<<cylinders.back()->actor->GetPosition()[1]<<" , "<<cylinders.back()->actor->GetPosition()[2] << endl<<endl;
+
 			if (i % 6 == 0) cylinders.back()->actor->GetProperty()->SetColor(0,0,1);
-			//cylinders.back()->actor->GetProperty()->SetColor(0,0,0);
 
 			//AddSphere();
 			//spheres.back()->actor->SetPosition(0 , 0.5*l*sin(alpha * M_PI / 180.0)/r + i*displacement),r*k);
