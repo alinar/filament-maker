@@ -17,7 +17,7 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkProperty.h>
-
+#include <vtkTransform.h>
 class Cylinder {
 
 public:
@@ -26,6 +26,7 @@ public:
 	double height;
 	double radius;
 	static int resolution;
+	vtkSmartPointer<vtkTransform> transform;
 	vtkSmartPointer<vtkCylinderSource> vtk_cylinder;
 	vtkSmartPointer<vtkPolyDataMapper> mapper;
 	vtkSmartPointer<vtkActor> actor;

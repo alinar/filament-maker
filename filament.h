@@ -20,7 +20,7 @@
 #include <vtkProperty.h>
 
 #include <vtkTransform.h> //for 3D calculations
-
+#include <vtkAxesActor.h>
 #include "cylinder.h"
 #include "sphere.h"
 

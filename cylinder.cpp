@@ -20,7 +20,8 @@ Cylinder::Cylinder() : height(11), radius(1.0) {
 	vtk_cylinder->SetHeight(this->height);
 	vtk_cylinder->SetRadius(this->radius);
 	vtk_cylinder->SetResolution(this->resolution);
-
+	transform->Identity();
+	actor->SetUserTransform(transform);
 	mapper->SetInputConnection(this->vtk_cylinder->GetOutputPort());
 	actor->SetMapper(this->mapper);
 	//actor->GetProperty()->SetOpacity(0.5);

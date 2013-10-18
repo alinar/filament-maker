@@ -50,6 +50,13 @@ int Filament::Show(){
 		spheres.at(i)->Show(renderer);
 	}
 	renderer->SetBackground((double)204/255,(double)204/255,(double)255/255);
+	//add axis
+	vtkSmartPointer<vtkAxesActor> axes =
+			vtkSmartPointer<vtkAxesActor>::New();
+	axes->AxisLabelsOff();
+	axes->SetTotalLength(5,5,5);
+
+	renderer->AddActor(axes);
 
 	// Render and interact
 	renderWindow->SetWindowName("Filament");
@@ -60,38 +67,51 @@ int Filament::Show(){
 }
 
 void Filament::PlaceElements(){
+	vtkIndent ind;
+	vtkSmartPointer<vtkTransform> transform ;
+	double position[3];
 	const double r=2.00;
 	const double l=13;
 	const double a = 1.732;
 	const double b = 1.000;
 	const double alpha = 5;
-	const double displacement=9;
+	const double beta = 30;
+	const double displacement=2;
 	const double k=1/cos(alpha * M_PI / 180.0);
-	double torsion_addetive_angle=atan(displacement*tan(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
-	double torsion_addetive_angle_2=atan((l/k - 5*displacement)*tan(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
-	double torsion_addetive_angle_3=2*atan((0.5*l)*sin(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
-	cout << torsion_addetive_angle << endl;
-	cout << torsion_addetive_angle_2 << endl;
-	for (int s=0 ; s<20 ; s++){
+	double torsion_additive_angle=atan(displacement*tan(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
+	double torsion_additive_angle_2=atan((l/k - 5*displacement)*tan(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
+	double torsion_additive_angle_3=2*atan((0.5*l)*sin(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
+	cout << torsion_additive_angle << endl;
+	cout << torsion_additive_angle_2 << endl;
+	for (int s=0 ; s<10 ; s++){
 		for (int i=0 ; i<6 ; i++){
+			transform = vtkSmartPointer<vtkTransform> ::New();
+			transform->Identity();
+
+			transform->PostMultiply();
+
+			transform->Translate(r*k,displacement*i,0);
+			//transform->RotateX(alpha);
+			cout<<transform->GetPosition()[0]<<","<<transform->GetPosition()[1]<<","<<transform->GetPosition()[2]<<endl;
+			transform->RotateY(-60*i+torsion_additive_angle);
+			transform->GetMatrix()->PrintSelf(cout,ind);
+			position[0]=transform->GetPosition()[0];position[1]=transform->GetPosition()[1];position[2]=transform->GetPosition()[2];
+
+			transform->Translate(-1*position[0],-1*position[1],-1*position[2]);
+			transform->GetMatrix()->PrintSelf(cout,ind);
+			//transform->RotateWXYZ(beta,1,0,0);
+			transform->Translate(4,s*l/k,0);
+			transform->GetMatrix()->PrintSelf(cout,ind);
+			//transform->RotateX(beta);
+			transform->RotateWXYZ(-1*beta*s,0,1,0);
+			transform->GetMatrix()->PrintSelf(cout,ind);
+			cout<<"**********************************"<<endl;
+			transform->Translate(position);
+
 			AddCylinder();
-			//cylinders.back()->actor->RotateZ(alpha);
-			cylinders.back()->actor->SetPosition(0,i*displacement + s*l/k,r*k);
-			cout << cylinders.back()->actor->GetPosition()[0]<< " , "<<cylinders.back()->actor->GetPosition()[1]<<" , "<<cylinders.back()->actor->GetPosition()[2] << endl;
-			cylinders.back()->actor->SetOrigin(0,0,-r*k);
-			cylinders.back()->actor->RotateWXYZ(-1 * i * (60 + torsion_addetive_angle)
-					+ -1 * s * torsion_addetive_angle_3,0,1,0);
-//					+ -1 * s * ( 5 *  (60 + torsion_addetive_angle) + (60 + torsion_addetive_angle_2) )
-//					, 0 , 1 , 0 );
-			cout << cylinders.back()->actor->GetPosition()[0]<< " , "<<cylinders.back()->actor->GetPosition()[1]<<" , "<<cylinders.back()->actor->GetPosition()[2] << endl;
+			cylinders.back()->actor->SetUserTransform(transform);
 
-			cylinders.back()->actor->RotateZ(alpha);
-			cout << cylinders.back()->actor->GetPosition()[0]<< " , "<<cylinders.back()->actor->GetPosition()[1]<<" , "<<cylinders.back()->actor->GetPosition()[2] << endl<<endl;
-
-			if (i % 6 == 0) cylinders.back()->actor->GetProperty()->SetColor(0,0,1);
-
-			//AddSphere();
-			//spheres.back()->actor->SetPosition(0 , 0.5*l*sin(alpha * M_PI / 180.0)/r + i*displacement),r*k);
+			if (i == 0) cylinders.back()->actor->GetProperty()->SetColor(0,0,1);
 		}
 
 	}
