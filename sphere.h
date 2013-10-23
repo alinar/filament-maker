@@ -17,6 +17,7 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkProperty.h>
+#include <vtkAxesActor.h>
 
 class Sphere {
 

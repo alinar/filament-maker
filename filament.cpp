@@ -68,56 +68,112 @@ int Filament::Show(){
 
 void Filament::PlaceElements(){
 	vtkIndent ind;
-	vtkSmartPointer<vtkTransform> transform ;
+	vtkSmartPointer<vtkTransform> trans_cat = vtkSmartPointer<vtkTransform>::New();
 	double position[3];
-	const double r=2.00;
+	vtkIndent indent;
+	const double r=1.00;
+	const double R=2.00;
 	const double l=13;
 	const double a = 1.732;
 	const double b = 1.000;
-	const double alpha = 5;
+	const double alpha = 10;
 	const double beta = 30;
 	const double displacement=2;
 	const double k=1/cos(alpha * M_PI / 180.0);
+	unsigned i;
 	double torsion_additive_angle=atan(displacement*tan(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
 	double torsion_additive_angle_2=atan((l/k - 5*displacement)*tan(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
-	double torsion_additive_angle_3=2*atan((0.5*l)*sin(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
+	double torsion_additive_angle_3=atan(l*sin(alpha * M_PI / 180.0)/r) * 180.0 / M_PI;
+	double torsion_additive_angle_4=atan((l/k)*sin(alpha * M_PI / 180.0)/R) * 180.0 / M_PI;
 	cout << torsion_additive_angle << endl;
 	cout << torsion_additive_angle_2 << endl;
-	for (int s=0 ; s<10 ; s++){
-		for (int i=0 ; i<6 ; i++){
-			transform = vtkSmartPointer<vtkTransform> ::New();
-			transform->Identity();
+	trans_cat->Identity();
+	trans_cat->PostMultiply();
+	for (i=0;i<10;i++){
+		AddCylinder();
 
-			transform->PostMultiply();
-
-			transform->Translate(r*k,displacement*i,0);
-			//transform->RotateX(alpha);
-			cout<<transform->GetPosition()[0]<<","<<transform->GetPosition()[1]<<","<<transform->GetPosition()[2]<<endl;
-			transform->RotateY(-60*i+torsion_additive_angle);
-			transform->GetMatrix()->PrintSelf(cout,ind);
-			position[0]=transform->GetPosition()[0];position[1]=transform->GetPosition()[1];position[2]=transform->GetPosition()[2];
-
-			transform->Translate(-1*position[0],-1*position[1],-1*position[2]);
-			transform->GetMatrix()->PrintSelf(cout,ind);
-			//transform->RotateWXYZ(beta,1,0,0);
-			transform->Translate(4,s*l/k,0);
-			transform->GetMatrix()->PrintSelf(cout,ind);
-			//transform->RotateX(beta);
-			transform->RotateWXYZ(-1*beta*s,0,1,0);
-			transform->GetMatrix()->PrintSelf(cout,ind);
-			cout<<"**********************************"<<endl;
-			transform->Translate(position);
-
-			AddCylinder();
-			cylinders.back()->actor->SetUserTransform(transform);
-
-			if (i == 0) cylinders.back()->actor->GetProperty()->SetColor(0,0,1);
-		}
-
+		trans_cat->GetMatrix()->PrintSelf(cout,indent);
+		cylinders.back()->transform->RotateZ(alpha);
+		cylinders.back()->transform->Translate(0,0,r*k);
+		cylinders.back()->transform->Concatenate(trans_cat->GetMatrix());
+		trans_cat->RotateY(-1*torsion_additive_angle_3);
 	}
-	AddSphere();
-	spheres.back()->actor->GetProperty()->SetColor(0,1,0);
-	//	AddSphere();
+	trans_cat->Identity();
+	trans_cat->PostMultiply();
+	trans_cat->RotateY(-180);
+	for (i=0;i<10;i++){
+		AddCylinder();
+
+		trans_cat->GetMatrix()->PrintSelf(cout,indent);
+		cylinders.back()->transform->RotateZ(alpha);
+		cylinders.back()->transform->Translate(0,0,r*k);
+		cylinders.back()->transform->Concatenate(trans_cat->GetMatrix());
+		trans_cat->RotateY(-1*torsion_additive_angle_3);
+	}
+	trans_cat->Identity();
+	trans_cat->PostMultiply();
+	for (i=0;i<10;i++){
+		cylinders.at(i)->transform->RotateZ(alpha);
+		cylinders.at(i)->transform->Translate(0,(i%10)*l/(k*k),2);
+		cylinders.at(i)->transform->Concatenate(trans_cat->GetMatrix());
+		trans_cat->RotateY(-1*torsion_additive_angle_4);
+	}
+	trans_cat->Identity();
+	trans_cat->PostMultiply();
+	for (i=10;i<20;i++){
+		cylinders.at(i)->transform->RotateZ(alpha);
+		cylinders.at(i)->transform->Translate(0,(i%10)*l/(k*k),2);
+		cylinders.at(i)->transform->Concatenate(trans_cat->GetMatrix());
+		trans_cat->RotateY(-1*torsion_additive_angle_4);
+	}
+	//********************************************
+	trans_cat->Identity();
+	trans_cat->PostMultiply();
+	for (i=0;i<10;i++){
+		AddCylinder();
+
+		trans_cat->GetMatrix()->PrintSelf(cout,indent);
+		cylinders.back()->transform->RotateZ(alpha);
+		cylinders.back()->transform->Translate(0,0,r*k);
+		cylinders.back()->transform->Concatenate(trans_cat->GetMatrix());
+		cylinders.back()->actor->GetProperty()->SetColor(0,0,1);
+		trans_cat->RotateY(-1*torsion_additive_angle_3);
+	}
+	trans_cat->Identity();
+	trans_cat->PostMultiply();
+	trans_cat->RotateY(-180);
+	for (i=0;i<10;i++){
+		AddCylinder();
+
+		trans_cat->GetMatrix()->PrintSelf(cout,indent);
+		cylinders.back()->transform->RotateZ(alpha);
+		cylinders.back()->transform->Translate(0,0,r*k);
+		cylinders.back()->transform->Concatenate(trans_cat->GetMatrix());
+		cylinders.back()->actor->GetProperty()->SetColor(0,0,1);
+		trans_cat->RotateY(-1*torsion_additive_angle_3);
+	}
+	trans_cat->Identity();
+	trans_cat->PostMultiply();
+	trans_cat->RotateY(-180);
+	for (i=20;i<30;i++){
+
+		cylinders.at(i)->transform->RotateZ(alpha);
+		cylinders.at(i)->transform->Translate(0,(i%10)*l/(k*k),2);
+		cylinders.at(i)->transform->Concatenate(trans_cat->GetMatrix());
+		trans_cat->RotateY(-1*torsion_additive_angle_4);
+	}
+	trans_cat->Identity();
+	trans_cat->PostMultiply();
+	trans_cat->RotateY(-180);
+	for (i=30;i<cylinders.size();i++){
+
+		cylinders.at(i)->transform->RotateZ(alpha);
+		cylinders.at(i)->transform->Translate(0,(i%10)*l/(k*k),2);
+		cylinders.at(i)->transform->Concatenate(trans_cat->GetMatrix());
+		trans_cat->RotateY(-1*torsion_additive_angle_4);
+	}
+
+		AddSphere();
 	//	spheres.back()->SetPosition(2,0,21);
 	//	AddSphere();
 	//	spheres.back()->SetPosition(b,a,5+21);

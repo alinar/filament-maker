@@ -16,16 +16,18 @@ Cylinder::Cylinder() : height(11), radius(1.0) {
 	vtk_cylinder = vtkSmartPointer<vtkCylinderSource> :: New();
 	mapper = vtkSmartPointer<vtkPolyDataMapper> :: New();
 	actor = vtkSmartPointer<vtkActor> :: New();
+	transform=vtkSmartPointer<vtkTransform> :: New();
 
 	vtk_cylinder->SetHeight(this->height);
 	vtk_cylinder->SetRadius(this->radius);
 	vtk_cylinder->SetResolution(this->resolution);
 	transform->Identity();
+	transform->PostMultiply();
 	actor->SetUserTransform(transform);
 	mapper->SetInputConnection(this->vtk_cylinder->GetOutputPort());
 	actor->SetMapper(this->mapper);
 	//actor->GetProperty()->SetOpacity(0.5);
-	//actor->GetProperty()->SetColor(0,1,0);
+	//actor->GetProperty()->SetColor(1,1,1);
 }
 
 Cylinder::~Cylinder() {
