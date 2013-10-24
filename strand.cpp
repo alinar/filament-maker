@@ -7,7 +7,9 @@
 
 #include "strand.h"
 
-Strand::Strand():radius(0),alpha(0),init_torsion_angle(0),torsion_additive_angle(0),height(0),basic_strand(false) {
+Strand::Strand():radius(0),alpha(0),init_torsion_angle(0),torsion_additive_angle(0),
+	height(0),basic_strand(false),stationary_rotation(false)
+{
 	transform = vtkSmartPointer<vtkTransform>::New();
 	transform->Identity();
 }
@@ -76,7 +78,7 @@ void Strand::Show(){
 	vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
 			vtkSmartPointer<vtkRenderWindowInteractor>::New();
 	renderWindowInteractor->SetRenderWindow(renderWindow);
-	renderer->SetBackground((double)204/255,(double)204/255,(double)255/255);
+	//renderer->SetBackground((double)204/255,(double)204/255,(double)255/255);
 
 	//Add axis
 	vtkSmartPointer<vtkAxesActor> axes =
@@ -102,7 +104,6 @@ void Strand::Seed(){
 	double sub_radius,z=0;
 	vtkSmartPointer<vtkTransform> transform_cat;
 
-
 	for (i=0 ; i<sub_strands.size() ; i++){
 		transform_cat=vtkSmartPointer<vtkTransform>::New();
 		transform_cat->Identity();
@@ -111,12 +112,16 @@ void Strand::Seed(){
 		sub_alpha	=	sub_strands.at(i)->init_torsion_angle;
 		pos			=	sub_strands.at(i)->init_pos;
 		k			=	1/cos(sub_alpha * DEG_2_RAD);
-		cout << "main_torsion: " << torsion_additive_angle << endl;
-		transform_cat->RotateZ(sub_alpha);
-		transform_cat->Translate(0,0,pos[0]*k);
-		transform_cat->RotateY(pos[1]);
-		transform_cat->RotateY(-1*torsion_additive_angle);
 
+		transform_cat->Translate(0,0,pos[0]*k);
+		if (!sub_strands.at(i)->stationary_rotation){
+			transform_cat->RotateZ(sub_alpha);
+			transform_cat->RotateY(pos[1]);
+			transform_cat->RotateY(-1*torsion_additive_angle);
+		}
+		else{
+			StationaryRotate(transform_cat,pos,k,sub_alpha);
+		}
 		sub_strands.at(i)->Seed(k,transform_cat);
 	}
 
@@ -137,17 +142,21 @@ void Strand::Seed(){
 			pos			=	sub_strands.at(i)->init_pos;
 			k			=	1/cos(sub_alpha * DEG_2_RAD);
 
-
-			cout << "torsion: " << torsion_additive_angle << endl;
 			transform_cat=vtkSmartPointer<vtkTransform>::New();
 			transform_cat->Identity();
 			transform_cat->PostMultiply();
 
 
-			transform_cat->RotateZ(sub_alpha);
 			transform_cat->Translate(0,0,pos[0]*k);
-			transform_cat->RotateY(pos[1]);
-			transform_cat->RotateY(-1*torsion_additive_angle);
+			if (!sub_strands.at(i)->stationary_rotation){
+				transform_cat->RotateZ(sub_alpha);
+				transform_cat->RotateY(pos[1]);
+				transform_cat->RotateY(-1*torsion_additive_angle);
+			}
+			else{
+				StationaryRotate(transform_cat,pos,k,sub_alpha);
+			}
+
 			transform_cat->Concatenate(transform->GetMatrix());
 			sub_strands.at(i)->Seed(k*h,transform_cat);
 		}
@@ -160,7 +169,6 @@ void Strand::Seed(){
 		cylinders.back()->transform->Translate(0,this->height,0);
 		height	=	this->height + this->length / h;
 		vtkIndent indent;
-		//cylinders.back()->transform->PrintSelf(cout,indent);
 	}
 }
 
@@ -174,4 +182,26 @@ void Strand::AddStrand(){
 }
 void Strand::AddCylinder(){
 	cylinders.push_back(new Cylinder());
+}
+void Strand::StationaryRotate(vtkTransform* transform , double* pos, double k, double sub_alpha){
+	double point[3]={0,0,0};
+	double base[3]={0,0,0};
+	double vector[3]={0,0,0};
+	vtkSmartPointer<vtkTransform> aux_trans	=	vtkSmartPointer<vtkTransform> ::New();
+	point[2]=pos[0]*k;
+	base[2]=pos[0]*k;
+	aux_trans->Identity();
+	aux_trans->RotateY(-1*torsion_additive_angle);
+	aux_trans->TransformPoint(point,point);
+	vtkMath::Subtract(point,base,vector);
+
+	transform->RotateY(pos[1]);
+	transform->Translate(vector);
+
+	aux_trans->Identity();
+	aux_trans->RotateY(pos[1]);
+	aux_trans->TransformPoint(point,point);
+
+	transform->RotateWXYZ(sub_alpha,point[0],point[1],point[2]);
+
 }

@@ -30,7 +30,7 @@ int main(int, char *argv[])
 	strand_basic1->init_pos[0]	=	1;
 	strand_basic1->init_pos[1]	=	90;
 	strand_basic1->init_pos[2]	=	0;
-	strand_basic1->init_torsion_angle	=	5;
+	strand_basic1->init_torsion_angle	=	0;
 	//
 	Strand* strand_basic2=new Strand();
 	strand_basic2->basic_strand	=	true;
@@ -38,7 +38,7 @@ int main(int, char *argv[])
 	strand_basic2->init_pos[0]	=	1;
 	strand_basic2->init_pos[1]	=	-90;
 	strand_basic2->init_pos[2]	=	0;
-	strand_basic2->init_torsion_angle	=	5;
+	strand_basic2->init_torsion_angle	=	0;
 	//
 	Strand* master_1=new Strand();
 
@@ -48,6 +48,7 @@ int main(int, char *argv[])
 	master_1->init_torsion_angle	=	-5;
 	master_1->AddStrand(strand_basic1);
 	master_1->AddStrand(strand_basic2);
+	master_1->stationary_rotation=true;
 
 	//**************************************************
 	Strand* strand_basic3=new Strand();
@@ -56,7 +57,7 @@ int main(int, char *argv[])
 	strand_basic3->init_pos[0]	=	1;
 	strand_basic3->init_pos[1]	=	90;
 	strand_basic3->init_pos[2]	=	0;
-	strand_basic3->init_torsion_angle	=	5;
+	strand_basic3->init_torsion_angle	=	0;
 	//
 	Strand* strand_basic4=new Strand();
 	strand_basic4->basic_strand	=	true;
@@ -64,7 +65,7 @@ int main(int, char *argv[])
 	strand_basic4->init_pos[0]	=	1;
 	strand_basic4->init_pos[1]	=	-90;
 	strand_basic4->init_pos[2]	=	0;
-	strand_basic4->init_torsion_angle	=	5;
+	strand_basic4->init_torsion_angle	=	0;
 	//
 	Strand* master_2=new Strand();
 

@@ -19,6 +19,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkMath.h>
 #include "strand.h"
 #include "macros.h"
 #include "cylinder.h"
@@ -37,6 +38,7 @@ public:
 	double init_pos[3];//initial position in the parent strand. init_pos[r,theta,z].
 	double init_torsion_angle;
 	bool basic_strand;
+	bool stationary_rotation;
 
 	void RotateWXYZ(double,double,double,double);
 	void Translate(double,double,double);
@@ -55,6 +57,8 @@ public:
 protected:
 	double torsion_additive_angle;
 	double height;
+
+	void StationaryRotate(vtkTransform*, double*, double, double);
 };
 
 #endif /* STRAND_H_ */
