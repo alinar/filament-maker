@@ -10,6 +10,7 @@
 
 #include <cstdio>
 #include <vector>
+#include <cstdlib>
 #include <math.h>
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
@@ -42,7 +43,6 @@ public:
 
 	void RotateWXYZ(double,double,double,double);
 	void Translate(double,double,double);
-	void AddStrand();
 	void AddStrand(Strand*);
 	void AddCylinder();
 	void Show(vtkRenderer*);
@@ -57,7 +57,7 @@ public:
 protected:
 	double torsion_additive_angle;
 	double height;
-
+	void Update();
 	void StationaryRotate(vtkTransform*, double*, double, double);
 };
 

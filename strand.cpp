@@ -13,28 +13,7 @@ Strand::Strand():radius(0),alpha(0),init_torsion_angle(0),torsion_additive_angle
 	transform = vtkSmartPointer<vtkTransform>::New();
 	transform->Identity();
 }
-//Strand::Strand(double* init_pos_):radius(2),alpha(5){
-//	init_pos[0]	=	init_pos_[0];
-//	init_pos[1]	=	init_pos_[1];
-//	init_pos[2]	=	init_pos_[2];
-//	transform = vtkSmartPointer<vtkTransform>::New();
-//	transform->Identity();
-//	transform->PostMultiply();
-//	this->RotateWXYZ(alpha,0,0,1);//RotateZ
-//	this->Translate(0,init_pos[2],init_pos[1]);
-//	this->RotateWXYZ(init_pos[0],0,1,0);//RotateY
-//}
-//Strand::Strand(double theta,double r,double z):radius(2),alpha(5){
-//	init_pos[0]	=	theta;
-//	init_pos[1]	=	r;
-//	init_pos[2]	=	z;
-//	transform = vtkSmartPointer<vtkTransform>::New();
-//	transform->Identity();
-//	transform->PostMultiply();
-//	transform->RotateZ(alpha);
-//	transform->Translate(0,init_pos[2],init_pos[1]);
-//	transform->RotateY(init_pos[0]);
-//}
+
 
 Strand::~Strand() {
 }
@@ -47,6 +26,7 @@ void Strand::RotateWXYZ(double angle,double x,double y,double z){
 	for (i=0 ; i<cylinders.size() ; i++){
 		cylinders.at(i)->transform->RotateWXYZ(angle,x,y,z);
 	}
+
 }
 
 void Strand::Translate (double x,double y,double z){
@@ -98,6 +78,7 @@ void Strand::Show(){
 }
 
 void Strand::Seed(){
+	Update();
 	unsigned int i;
 	double* pos;
 	double sub_length,sub_alpha,k;
@@ -128,8 +109,8 @@ void Strand::Seed(){
 	torsion_additive_angle	=	torsion_additive_angle + atan( sub_length * sin(sub_alpha * DEG_2_RAD)/(pos[0]*k) ) * RAD_2_DEG;
 }
 	void Strand::Seed(double h,vtkTransform* transform){
+		Update();
 		vtkSmartPointer<vtkTransform> transform_cat;
-
 		unsigned int i;
 		double* pos;
 		double sub_length,sub_alpha,k;
@@ -172,14 +153,18 @@ void Strand::Seed(){
 	}
 }
 
+	void Strand::Update(){
+		double new_length;
+		for (unsigned int i=0 ; i<sub_strands.size() ; i++){
+			new_length	=	sub_strands.at(i)->length / cos(sub_strands.at(i)->init_torsion_angle * DEG_2_RAD);
+			if (this->length < new_length) this->length	 =	new_length;
+		}
+	}
+
 void Strand::AddStrand(Strand* new_strand){
 		sub_strands.push_back(new_strand);
-		double new_length	=	new_strand->length / cos(new_strand->init_torsion_angle * DEG_2_RAD);
-		if (this->length < new_length) this->length	 =	new_length;
 	}
-void Strand::AddStrand(){
-	sub_strands.push_back(new Strand);
-}
+
 void Strand::AddCylinder(){
 	cylinders.push_back(new Cylinder());
 }
