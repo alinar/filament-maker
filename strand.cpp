@@ -16,6 +16,9 @@ Strand::Strand():radius(0),alpha(0),init_torsion_angle(0),torsion_additive_angle
 
 
 Strand::~Strand() {
+	for (unsigned int i; i<cylinders.size() ; i++){
+		delete cylinders.at(i);
+	}
 }
 
 void Strand::RotateWXYZ(double angle,double x,double y,double z){
@@ -166,7 +169,7 @@ void Strand::AddStrand(Strand* new_strand){
 	}
 
 void Strand::AddCylinder(){
-	cylinders.push_back(new Cylinder());
+	cylinders.push_back(new Cylinder(this->length - 2));
 }
 void Strand::StationaryRotate(vtkTransform* transform , double* pos, double k, double sub_alpha){
 	double point[3]={0,0,0};

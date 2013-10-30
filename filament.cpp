@@ -24,7 +24,7 @@ Filament::~Filament() {
 
 void Filament::AddCylinder(){
 	cylinders.resize(cylinders.size()+1);
-	cylinders.back() = new Cylinder();
+	cylinders.back() = new Cylinder(13-2);
 }
 
 void Filament::AddSphere(){
