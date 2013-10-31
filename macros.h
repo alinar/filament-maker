@@ -8,7 +8,7 @@
 #ifndef MACROS_H_
 #define MACROS_H_
 
-#include <math.h>
+#define MAX_HIETATCHY_COMPLEXITY	50
 
 #define RAD_2_DEG					57.2957795131
 #define DEG_2_RAD					0.01745329251

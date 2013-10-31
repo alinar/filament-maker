@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<filament number_of_rows="10">
+	<strand r="2" theta="0" z="0" torsion_angle="5">
+		<basic_strand r="1" theta="90" z="0" torsion_angle="0" length="13"></basic_strand>
+		<basic_strand r="1" theta="-90" z="0" torsion_angle="0" length="13"></basic_strand>
+	</strand>
+
+</filament>

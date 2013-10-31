@@ -32,14 +32,15 @@ class Strand {
 public:
 	vector < Strand* > sub_strands;
 	vector < Cylinder* > cylinders;
-	vtkSmartPointer<vtkTransform> transform;
 	double alpha;
 	double radius;
 	double length;
 	double init_pos[3];//initial position in the parent strand. init_pos[r,theta,z].
 	double init_torsion_angle;
 	bool basic_strand;
+	bool supreme_strand;
 	bool stationary_rotation;
+	Strand *parent_strand;
 
 	void RotateWXYZ(double,double,double,double);
 	void Translate(double,double,double);
@@ -49,16 +50,18 @@ public:
 	void Show();
 	void Seed();
 	void Seed(double,vtkTransform*);
+	void ConcatenateTransform(vtkTransform*,double);
 	Strand();
 	Strand(double*);
 	Strand(double,double,double);
 	virtual ~Strand();
+	double TwistAngle(double);
 
 protected:
-	double torsion_additive_angle;
+	double torsion_additive_angle[MAX_HIETATCHY_COMPLEXITY];
 	double height;
 	void Update();
-	void StationaryRotate(vtkTransform*, double*, double, double);
+	void StationaryRotate(vtkTransform*,double);
 };
 
 #endif /* STRAND_H_ */

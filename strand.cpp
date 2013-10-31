@@ -7,11 +7,12 @@
 
 #include "strand.h"
 
-Strand::Strand():radius(0),alpha(0),init_torsion_angle(0),torsion_additive_angle(0),
-	height(0),basic_strand(false),stationary_rotation(false)
+Strand::Strand():radius(0),alpha(0),init_torsion_angle(0),
+	height(0),basic_strand(false),stationary_rotation(false),
+	supreme_strand(false)
 {
-	transform = vtkSmartPointer<vtkTransform>::New();
-	transform->Identity();
+	for (unsigned i=0;i<MAX_HIETATCHY_COMPLEXITY;i++)
+		torsion_additive_angle[i]	=	0;
 }
 
 
@@ -80,116 +81,82 @@ void Strand::Show(){
 
 }
 
-void Strand::Seed(){
-	Update();
-	unsigned int i;
-	double* pos;
-	double sub_length,sub_alpha,k;
-	double sub_radius,z=0;
-	vtkSmartPointer<vtkTransform> transform_cat;
-
-	for (i=0 ; i<sub_strands.size() ; i++){
-		transform_cat=vtkSmartPointer<vtkTransform>::New();
-		transform_cat->Identity();
-		transform_cat->PostMultiply();
-		sub_length	=	sub_strands.at(i)->length;
-		sub_alpha	=	sub_strands.at(i)->init_torsion_angle;
-		pos			=	sub_strands.at(i)->init_pos;
-		k			=	1/cos(sub_alpha * DEG_2_RAD);
-
-		transform_cat->Translate(0,0,pos[0]*k);
-		if (!sub_strands.at(i)->stationary_rotation){
-			transform_cat->RotateZ(sub_alpha);
-			transform_cat->RotateY(pos[1]);
-			transform_cat->RotateY(-1*torsion_additive_angle);
-		}
-		else{
-			StationaryRotate(transform_cat,pos,k,sub_alpha);
-		}
-		sub_strands.at(i)->Seed(k,transform_cat);
-	}
-
-	torsion_additive_angle	=	torsion_additive_angle + atan( sub_length * sin(sub_alpha * DEG_2_RAD)/(pos[0]*k) ) * RAD_2_DEG;
-}
-	void Strand::Seed(double h,vtkTransform* transform){
-		Update();
-		vtkSmartPointer<vtkTransform> transform_cat;
-		unsigned int i;
-		double* pos;
-		double sub_length,sub_alpha,k;
-		double sub_radius,z=0;
-
-	if (!this->basic_strand){
-		for (i=0 ; i<sub_strands.size() ; i++){
-			sub_length	=	sub_strands.at(i)->length;
-			sub_alpha	=	sub_strands.at(i)->init_torsion_angle;
-			pos			=	sub_strands.at(i)->init_pos;
-			k			=	1/cos(sub_alpha * DEG_2_RAD);
-
-			transform_cat=vtkSmartPointer<vtkTransform>::New();
-			transform_cat->Identity();
-			transform_cat->PostMultiply();
-
-
-			transform_cat->Translate(0,0,pos[0]*k);
-			if (!sub_strands.at(i)->stationary_rotation){
-				transform_cat->RotateZ(sub_alpha);
-				transform_cat->RotateY(pos[1]);
-				transform_cat->RotateY(-1*torsion_additive_angle);
-			}
-			else{
-				StationaryRotate(transform_cat,pos,k,sub_alpha);
-			}
-
-			transform_cat->Concatenate(transform->GetMatrix());
-			sub_strands.at(i)->Seed(k*h,transform_cat);
-		}
-
-		torsion_additive_angle	=	torsion_additive_angle + atan( sub_length * sin(sub_alpha * DEG_2_RAD)/(pos[0]*k) ) * RAD_2_DEG;
+void Strand::ConcatenateTransform(vtkTransform* in_trans,double torsion_angle_add){
+	double k	=	1/cos(init_torsion_angle * DEG_2_RAD);
+	in_trans->Translate(0,0,init_pos[0]*k);
+	if (!stationary_rotation){
+		in_trans->RotateZ(init_torsion_angle);
+		in_trans->RotateY(init_pos[1]);
+		in_trans->RotateY(-1*torsion_angle_add);
 	}
 	else{
-		AddCylinder();
-		cylinders.back()->transform->Concatenate(transform->GetMatrix());
-		cylinders.back()->transform->Translate(0,this->height,0);
-		height	=	this->height + this->length / h;
-		vtkIndent indent;
+		StationaryRotate(in_trans,torsion_angle_add);
 	}
 }
+double Strand::TwistAngle(double in_length){
+	double k	=	1/cos(init_torsion_angle * DEG_2_RAD);
+	return  atan(in_length*sin(init_torsion_angle * DEG_2_RAD)/(init_pos[0]*k) ) * RAD_2_DEG;
+}
 
-	void Strand::Update(){
-		double new_length;
-		for (unsigned int i=0 ; i<sub_strands.size() ; i++){
-			new_length	=	sub_strands.at(i)->length / cos(sub_strands.at(i)->init_torsion_angle * DEG_2_RAD);
-			if (this->length < new_length) this->length	 =	new_length;
+void Strand::Seed(){
+	unsigned int i=0;
+	double l_new,c;
+
+	if (basic_strand){
+		vtkSmartPointer<vtkTransform> transform_cat	=	vtkSmartPointer<vtkTransform>::New();
+		transform_cat->Identity();
+		transform_cat->PostMultiply();
+		Strand* strand_iterator;
+		i=0;
+		c=1;
+		for (strand_iterator=this ; !strand_iterator->supreme_strand ; strand_iterator=strand_iterator->parent_strand){
+			strand_iterator->ConcatenateTransform(transform_cat,torsion_additive_angle[i]);
+			l_new		=	c*length;
+			torsion_additive_angle[i]	+=	strand_iterator->TwistAngle(l_new);
+			c	*=	cos(strand_iterator->init_torsion_angle * DEG_2_RAD);
+			i++;
 		}
+	transform_cat->Translate(0,height,0);
+	height	+=	(length*c);
+	AddCylinder();
+	cylinders.back()->transform->Concatenate(transform_cat->GetMatrix());
 	}
+	else
+		for (i=0 ; i < sub_strands.size() ; i++)
+			sub_strands.at(i)->Seed();
+}
+
 
 void Strand::AddStrand(Strand* new_strand){
 		sub_strands.push_back(new_strand);
+		new_strand->parent_strand = this;
 	}
 
 void Strand::AddCylinder(){
 	cylinders.push_back(new Cylinder(this->length - 2));
 }
-void Strand::StationaryRotate(vtkTransform* transform , double* pos, double k, double sub_alpha){
-	double point[3]={0,0,0};
-	double base[3]={0,0,0};
-	double vector[3]={0,0,0};
+void Strand::StationaryRotate(vtkTransform* transform ,   double torsion_angle_add){
+	double point[3]		=	{0,0,0};
+	double base[3]		=	{0,0,0};
+	double vector[3]	=	{0,0,0};
+	double k			=	1/cos(init_torsion_angle * DEG_2_RAD);
 	vtkSmartPointer<vtkTransform> aux_trans	=	vtkSmartPointer<vtkTransform> ::New();
-	point[2]=pos[0]*k;
-	base[2]=pos[0]*k;
+	aux_trans->PostMultiply();
+
 	aux_trans->Identity();
-	aux_trans->RotateY(-1*torsion_additive_angle);
+	aux_trans->Translate(0,0,init_pos[0]*k);
+	aux_trans->RotateY(init_pos[1]);
+
+	aux_trans->TransformPoint(base,base);
+
+	aux_trans->RotateY(-1*torsion_angle_add);
 	aux_trans->TransformPoint(point,point);
+
 	vtkMath::Subtract(point,base,vector);
 
-	transform->RotateY(pos[1]);
+	transform->Translate(0,0,init_pos[0]*k);
+	transform->RotateY(init_pos[1]);
 	transform->Translate(vector);
-
-	aux_trans->Identity();
-	aux_trans->RotateY(pos[1]);
-	aux_trans->TransformPoint(point,point);
-
-	transform->RotateWXYZ(sub_alpha,point[0],point[1],point[2]);
+	transform->RotateWXYZ(init_torsion_angle,point[0],point[1],point[2]);
 
 }

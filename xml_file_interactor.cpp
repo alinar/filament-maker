@@ -36,6 +36,7 @@ int XMLFileInteractor::ReadFile(char* file_name){
 		file.close();
 		str[length]='\0';
 	}
+	else cerr<<"There is no file with the name."<<file_name<<endl;
 	return 1;
 }
 
@@ -48,12 +49,13 @@ void XMLFileInteractor::MakeStructure(){
 	xml_node<> *filament_node = doc.first_node(FILAMENT_STR);
 	if (filament_node){
 		attr	=	filament_node->first_attribute(NUMBER_OF_ROWS_STR);
-		if (attr) number_of_rows	=	atoi(attr->value());
+		if (attr) number_of_rows=atoi(attr->value());
 
 		master_strand = AddStrand();
+		master_strand->supreme_strand	=	true;
 		RecursiveAdd (filament_node,master_strand);
 	}
-	else cerr << "There shout be node with the name \"filament\" in the XML file. " << endl;
+	else cerr << "There shout be a node with the name \"filament\" in the XML file. " << endl;
 
 	for (unsigned int i=0;i<number_of_rows;i++){
 		master_strand->Seed();
