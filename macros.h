@@ -23,6 +23,7 @@
 #define R_STR						"r"
 #define Z_STR						"z"
 #define LENGTH_STR					"length"
+#define DIAMETER_STR					"diameter"
 #define NUMBER_OF_ROWS_STR			"number_of_rows"
 
 #define SWING_STR					"swing"

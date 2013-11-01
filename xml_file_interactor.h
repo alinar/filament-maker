@@ -15,6 +15,7 @@
 #include <vector>
 #include "macros.h"
 #include "strand.h"
+#include "elemental_strand.h"
 using namespace rapidxml;
 using namespace std;
 
@@ -26,14 +27,13 @@ protected:
 	int number_of_rows;
 
 	int ReadFile(char*);
-	Strand* AddStrand();
-	void AddStrand(Strand*);
-
+	Strand*				AddNewStrand();
+	ElementalStrand*	AddNewElementalStrand();
 public:
 	Strand* master_strand;
 
 	XMLFileInteractor(char*);
-	~XMLFileInteractor();
+	virtual ~XMLFileInteractor();
 	void MakeStructure();
 	int WriteFile(char*);
 	void Parse();

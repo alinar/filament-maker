@@ -12,8 +12,9 @@
 
 int Cylinder::resolution = 100;
 
-Cylinder::Cylinder(double h=11) : radius(1.0) {
-	this->height=h;
+Cylinder::Cylinder(double h=11.0,double r=1.0) {
+	this->height	=	h;
+	this->radius	=	r;
 	vtk_cylinder = vtkSmartPointer<vtkCylinderSource> :: New();
 	mapper = vtkSmartPointer<vtkPolyDataMapper> :: New();
 	actor = vtkSmartPointer<vtkActor> :: New();

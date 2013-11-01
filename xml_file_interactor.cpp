@@ -51,7 +51,7 @@ void XMLFileInteractor::MakeStructure(){
 		attr	=	filament_node->first_attribute(NUMBER_OF_ROWS_STR);
 		if (attr) number_of_rows=atoi(attr->value());
 
-		master_strand = AddStrand();
+		master_strand = AddNewStrand();
 		master_strand->supreme_strand	=	true;
 		RecursiveAdd (filament_node,master_strand);
 	}
@@ -69,55 +69,57 @@ void XMLFileInteractor::RecursiveAdd(xml_node<> *parent_node, Strand *parent_str
 	xml_attribute<>* t_ang;
 	xml_attribute<>* swing;
 	xml_attribute<>* length;
+	xml_attribute<>* diameter;
 	for (xml_node<> *child_node	=	parent_node->first_node(STRAND_STR) ;
 			child_node;
 			child_node	=	child_node->next_sibling() )
 	{
-			child_strand	=	AddStrand();
-			parent_strand->AddStrand(child_strand);
-			r				=	child_node->first_attribute(R_STR);
-			theta			=	child_node->first_attribute(THETA_STR);
-			z				=	child_node->first_attribute(Z_STR);
-			t_ang			=	child_node->first_attribute(TORSION_ANGLE_STR);
-			swing			=	child_node->first_attribute(SWING_STR);
-			if (r)		child_strand->init_pos[0]			=	atof (r->value() );
-			if (theta)	child_strand->init_pos[1]			=	atof (theta->value() );
-			if (z)		child_strand->init_pos[2]			=	atof (z->value() );
-			if (t_ang)	child_strand->init_torsion_angle	=	atof (t_ang->value() );
-			if (swing && strcmp(swing->value() , STATIONARY_STR) == 0)
-				child_strand->stationary_rotation=true;
+		child_strand	=	AddNewStrand();
+		parent_strand->AddStrand(child_strand);
+		r				=	child_node->first_attribute(R_STR);
+		theta			=	child_node->first_attribute(THETA_STR);
+		z				=	child_node->first_attribute(Z_STR);
+		t_ang			=	child_node->first_attribute(TORSION_ANGLE_STR);
+		swing			=	child_node->first_attribute(SWING_STR);
+		if (r)		child_strand->init_pos[0]			=	atof (r->value() );
+		if (theta)	child_strand->init_pos[1]			=	atof (theta->value() );
+		if (z)		child_strand->init_pos[2]			=	atof (z->value() );
+		if (t_ang)	child_strand->init_torsion_angle	=	atof (t_ang->value() );
+		if (swing && strcmp(swing->value() , STATIONARY_STR) == 0)
+			child_strand->stationary_rotation=true;
 
-			RecursiveAdd(child_node,child_strand);
+		RecursiveAdd(child_node,child_strand);
 	}
 	for (xml_node<> *child_node	=	parent_node->first_node(BASIC_STRAND_STR) ;
 			child_node;
-			child_node	=	child_node->next_sibling())
-	{
-			child_strand	=	AddStrand();
-			parent_strand->AddStrand(child_strand);
-			child_strand->basic_strand	=	true;
-			r				=	child_node->first_attribute(R_STR);
-			theta			=	child_node->first_attribute(THETA_STR);
-			z				=	child_node->first_attribute(Z_STR);
-			t_ang			=	child_node->first_attribute(TORSION_ANGLE_STR);
-			swing			=	child_node->first_attribute(SWING_STR);
-			length			=	child_node->first_attribute(LENGTH_STR);
-			if (r)		child_strand->init_pos[0]			=	atof (r->value() );
-			if (theta)	child_strand->init_pos[1]			=	atof (theta->value() );
-			if (z)		child_strand->init_pos[2]			=	atof (z->value() );
-			if (t_ang)	child_strand->init_torsion_angle	=	atof (t_ang->value() );
-			if (length)	child_strand->length				=	atof (length->value() );
-			if (swing && strcmp(swing->value() , STATIONARY_STR) == 0)
-				child_strand->stationary_rotation=true;
+			child_node	=	child_node->next_sibling() ){
+		child_strand	=	AddNewElementalStrand();
+		parent_strand->AddStrand(child_strand);
+		r				=	child_node->first_attribute(R_STR);
+		theta			=	child_node->first_attribute(THETA_STR);
+		z				=	child_node->first_attribute(Z_STR);
+		t_ang			=	child_node->first_attribute(TORSION_ANGLE_STR);
+		swing			=	child_node->first_attribute(SWING_STR);
+		length			=	child_node->first_attribute(LENGTH_STR);
+		diameter		=	child_node->first_attribute(DIAMETER_STR);
+		if (r)		child_strand->init_pos[0]			=	atof (r->value() );
+		if (theta)	child_strand->init_pos[1]			=	atof (theta->value() );
+		if (z)		child_strand->init_pos[2]			=	atof (z->value() );
+		if (t_ang)	child_strand->init_torsion_angle	=	atof (t_ang->value() );
+		if (length)	static_cast<ElementalStrand*>(child_strand)->length		=	atof (length->value() );
+		if (diameter) static_cast<ElementalStrand*>(child_strand)->radius	=	atof (diameter->value()) * 0.5;
+		if (swing && strcmp(swing->value() , STATIONARY_STR) == 0)
+			child_strand->stationary_rotation=true;
 	}
 }
 
-Strand* XMLFileInteractor::AddStrand(){
+Strand* XMLFileInteractor::AddNewStrand(){
 	Strand *new_strand = new Strand;
 	strands.push_back(new_strand);
 	return new_strand;
 }
-
-void XMLFileInteractor::AddStrand(Strand* strand_){
-	strands.push_back(strand_);
+ElementalStrand* XMLFileInteractor::AddNewElementalStrand(){
+	ElementalStrand *new_strand = new ElementalStrand;
+	strands.push_back(new_strand);
+	return new_strand;
 }

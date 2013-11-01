@@ -8,7 +8,7 @@ ENDIF(APPLE)
  
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
-add_executable(main main.cpp strand cylinder sphere filament xml_file_interactor)
+add_executable(main main.cpp strand cylinder sphere filament xml_file_interactor elemental_strand)
 if(VTK_LIBRARIES)
   target_link_libraries(main ${VTK_LIBRARIES})
   message(Links to VTK_LIBRARIES)
