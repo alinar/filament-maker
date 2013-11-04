@@ -46,6 +46,31 @@ void ElementalStrand::Seed(){
 
 }
 
+vtkTransform *ElementalStrand::AtomTransform(double atom_height){
+	unsigned int i=0;
+	double l_new,c;
+	double atom_torsion_angle;
+		vtkSmartPointer<vtkTransform> transform_cat	=	vtkSmartPointer<vtkTransform>::New();
+		transform_cat->Identity();
+		transform_cat->PostMultiply();
+		Strand* strand_iterator;
+		i=0;
+		c=1;
+		for (strand_iterator=this ; !strand_iterator->supreme_strand ; strand_iterator=strand_iterator->parent_strand){
+
+			l_new				=	c*atom_height;
+			//atom_torsion_angle	=
+			strand_iterator->ConcatenateTransform(transform_cat,torsion_additive_angle[i]);
+			torsion_additive_angle[i]	+=	strand_iterator->TwistAngle(l_new);
+			c	*=	cos(strand_iterator->init_torsion_angle * DEG_2_RAD);
+			i++;
+		}
+	transform_cat->Translate(0,height,0);
+	height	+=	(length*c);
+	AddCylinder();
+	cylinders.back()->transform->Concatenate(transform_cat->GetMatrix());
+}
+
 void ElementalStrand::Show(vtkRenderer* renderer){
 	unsigned int i;
 	for (i=0 ; i<cylinders.size() ; i++){

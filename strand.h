@@ -49,6 +49,7 @@ public:
 	virtual void Seed();
 	void ConcatenateTransform(vtkTransform*,double);
 	double TwistAngle(double);
+	double TwistAngleFlexible(double);
 
 protected:
 

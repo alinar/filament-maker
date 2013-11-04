@@ -21,6 +21,7 @@ public:
 	void AddCylinder();
 	void Seed();
 	void Show(vtkRenderer*);
+	vtkTransform *AtomTransform(double);
 
 protected:
 	double torsion_additive_angle[MAX_HIETATCHY_COMPLEXITY];
