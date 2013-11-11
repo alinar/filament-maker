@@ -6,31 +6,31 @@
 	</strand>
 
 	<strand r="4" theta="0" z="0" torsion_angle="-25">
-		<basic_strand r="1" theta="90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
-		<basic_strand r="1" theta="-90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="-90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
 	</strand>
 
 	<strand r="4" theta="60" z="1" torsion_angle="-25" >
-		<basic_strand r="1" theta="90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
-		<basic_strand r="1" theta="-90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="-90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
 	</strand>
 	<strand r="4" theta="120" z="2" torsion_angle="-25">
-		<basic_strand r="1" theta="90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
-		<basic_strand r="1" theta="-90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="-90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
 	</strand>
 
 	<strand r="4" theta="180" z="3" torsion_angle="-25" >
-		<basic_strand r="1" theta="90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
-		<basic_strand r="1" theta="-90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="-90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
 	</strand>
 	<strand r="4" theta="240" z="-2" torsion_angle="-25">
-		<basic_strand r="1" theta="90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
-		<basic_strand r="1" theta="-90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="-90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
 	</strand>
 
 	<strand r="4" theta="300" z="-1" torsion_angle="-25" >
-		<basic_strand r="1" theta="90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
-		<basic_strand r="1" theta="-90" z="0" torsion_angle="0" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
+		<basic_strand r="1" theta="-90" z="0" torsion_angle="5" length="1" diameter="2"></basic_strand>
 	</strand>
 
 

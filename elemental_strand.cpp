@@ -9,7 +9,7 @@
 
 ElementalStrand::ElementalStrand():radius(1.0),length(13.0),
 	height(0){
-		for (unsigned i=0;i<MAX_HIETATCHY_COMPLEXITY;i++)
+		for (unsigned i=0;i<MAX_HIERARCHY_COMPLEXITY;i++)
 			torsion_additive_angle[i]	=	0;
 
 		init_torsion_angle	=	0;
@@ -34,9 +34,9 @@ void ElementalStrand::Seed(){
 		c=1;
 		for (strand_iterator=this ; !strand_iterator->supreme_strand ; strand_iterator=strand_iterator->parent_strand){
 			strand_iterator->ConcatenateTransform(transform_cat,torsion_additive_angle[i]);
-			l_new		=	c*length;
+			l_new						=	c*length;
 			torsion_additive_angle[i]	+=	strand_iterator->TwistAngle(l_new);
-			c	*=	cos(strand_iterator->init_torsion_angle * DEG_2_RAD);
+			c							*=	cos(strand_iterator->init_torsion_angle * DEG_2_RAD);
 			i++;
 		}
 	transform_cat->Translate(0,height,0);
@@ -46,29 +46,25 @@ void ElementalStrand::Seed(){
 
 }
 
-vtkTransform *ElementalStrand::AtomTransform(double atom_height){
-	unsigned int i=0;
-	double l_new,c;
+vtkSmartPointer<vtkTransform> ElementalStrand::AtomTransform(double atom_height_in_strand, double atom_height_in_dimere){
+	double height_new,c;
 	double atom_torsion_angle;
 		vtkSmartPointer<vtkTransform> transform_cat	=	vtkSmartPointer<vtkTransform>::New();
 		transform_cat->Identity();
 		transform_cat->PostMultiply();
 		Strand* strand_iterator;
-		i=0;
 		c=1;
+		//to make RotateZ work fine.
+		transform_cat->Translate(0,-1*atom_height_in_dimere,0);
 		for (strand_iterator=this ; !strand_iterator->supreme_strand ; strand_iterator=strand_iterator->parent_strand){
-
-			l_new				=	c*atom_height;
-			//atom_torsion_angle	=
-			strand_iterator->ConcatenateTransform(transform_cat,torsion_additive_angle[i]);
-			torsion_additive_angle[i]	+=	strand_iterator->TwistAngle(l_new);
-			c	*=	cos(strand_iterator->init_torsion_angle * DEG_2_RAD);
-			i++;
+			height_new				=	c*atom_height_in_strand;
+			atom_torsion_angle		=	strand_iterator->TwistAngleFlexible(height_new);
+			strand_iterator->ConcatenateTransform(transform_cat,atom_torsion_angle);
+			c						*=	cos(strand_iterator->init_torsion_angle * DEG_2_RAD);
 		}
-	transform_cat->Translate(0,height,0);
-	height	+=	(length*c);
-	AddCylinder();
-	cylinders.back()->transform->Concatenate(transform_cat->GetMatrix());
+	transform_cat->Translate(0,c*atom_height_in_strand,0);
+
+	return transform_cat;
 }
 
 void ElementalStrand::Show(vtkRenderer* renderer){

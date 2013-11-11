@@ -81,9 +81,9 @@ void XMLFileInteractor::RecursiveAdd(xml_node<> *parent_node, Strand *parent_str
 		z				=	child_node->first_attribute(Z_STR);
 		t_ang			=	child_node->first_attribute(TORSION_ANGLE_STR);
 		swing			=	child_node->first_attribute(SWING_STR);
-		if (r)		child_strand->init_pos[0]			=	atof (r->value() );
+		if (r)		child_strand->init_pos[0]			=	atof (r->value() ) * NANOMETER;
 		if (theta)	child_strand->init_pos[1]			=	atof (theta->value() );
-		if (z)		child_strand->init_pos[2]			=	atof (z->value() );
+		if (z)		child_strand->init_pos[2]			=	atof (z->value() ) * NANOMETER;
 		if (t_ang)	child_strand->init_torsion_angle	=	atof (t_ang->value() );
 		if (swing && strcmp(swing->value() , STATIONARY_STR) == 0)
 			child_strand->stationary_rotation=true;
@@ -102,12 +102,12 @@ void XMLFileInteractor::RecursiveAdd(xml_node<> *parent_node, Strand *parent_str
 		swing			=	child_node->first_attribute(SWING_STR);
 		length			=	child_node->first_attribute(LENGTH_STR);
 		diameter		=	child_node->first_attribute(DIAMETER_STR);
-		if (r)		child_strand->init_pos[0]			=	atof (r->value() );
+		if (r)		child_strand->init_pos[0]			=	atof (r->value() ) * NANOMETER;
 		if (theta)	child_strand->init_pos[1]			=	atof (theta->value() );
-		if (z)		child_strand->init_pos[2]			=	atof (z->value() );
+		if (z)		child_strand->init_pos[2]			=	atof (z->value() ) * NANOMETER;
 		if (t_ang)	child_strand->init_torsion_angle	=	atof (t_ang->value() );
-		if (length)	static_cast<ElementalStrand*>(child_strand)->length		=	atof (length->value() );
-		if (diameter) static_cast<ElementalStrand*>(child_strand)->radius	=	atof (diameter->value()) * 0.5;
+		if (length)	static_cast<ElementalStrand*>(child_strand)->length		=	atof (length->value() ) * NANOMETER;
+		if (diameter) static_cast<ElementalStrand*>(child_strand)->radius	=	atof (diameter->value()) * 0.5 * NANOMETER;
 		if (swing && strcmp(swing->value() , STATIONARY_STR) == 0)
 			child_strand->stationary_rotation=true;
 	}

@@ -27,6 +27,8 @@
 
 using namespace std;
 
+#define WITH_TILT		true
+#define WITHOUT_TILT	false
 
 class Strand {
 public:
@@ -45,15 +47,17 @@ public:
 	Strand();
 	virtual ~Strand(){};
 	virtual void Show(vtkRenderer*);
+	virtual bool IsElemtalStrand(){return false;}
 	void Show();
 	virtual void Seed();
+	virtual vtkSmartPointer<vtkTransform> AtomTransform(double,double){return 0;};
 	void ConcatenateTransform(vtkTransform*,double);
 	double TwistAngle(double);
 	double TwistAngleFlexible(double);
 
 protected:
 
-	void StationaryRotate(vtkTransform*,double);
+	void StationaryRotate(vtkTransform*,double,bool);
 };
 
 #endif /* STRAND_H_ */

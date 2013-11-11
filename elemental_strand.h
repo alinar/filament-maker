@@ -21,10 +21,11 @@ public:
 	void AddCylinder();
 	void Seed();
 	void Show(vtkRenderer*);
-	vtkTransform *AtomTransform(double);
+	bool IsElemtalStrand(){return true;}
+	vtkSmartPointer<vtkTransform> AtomTransform(double,double);
 
 protected:
-	double torsion_additive_angle[MAX_HIETATCHY_COMPLEXITY];
+	double torsion_additive_angle[MAX_HIERARCHY_COMPLEXITY];
 	double height;
 };
 

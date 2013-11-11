@@ -50,12 +50,12 @@ void Strand::Show(){
 }
 
 void Strand::ConcatenateTransform(vtkTransform* in_trans,double torsion_angle_add){
-	double k		=	1/cos(init_torsion_angle * DEG_2_RAD);
-	double z_angle	=	TwistAngleFlexible(init_pos[2]);
-	//considering change of torsion angle because of z displacement
+	double k				=	1/cos(init_torsion_angle * DEG_2_RAD);
+	//change of torsion angle and hight because of z displacement
+	double z_angle			=	TwistAngleFlexible(init_pos[2]);
 	double z_displacement	=	init_pos[2] * cos(init_torsion_angle * DEG_2_RAD);
-	torsion_angle_add		=	torsion_angle_add	+	z_angle;
-
+	torsion_angle_add		+=	z_angle;
+	//
 	in_trans->Translate(0,0,init_pos[0]*k);
 	if (!stationary_rotation){
 		in_trans->RotateZ(init_torsion_angle);
@@ -63,12 +63,12 @@ void Strand::ConcatenateTransform(vtkTransform* in_trans,double torsion_angle_ad
 		in_trans->RotateY(-1*torsion_angle_add);
 	}
 	else{
-		StationaryRotate(in_trans,torsion_angle_add);
+		StationaryRotate(in_trans,torsion_angle_add,WITH_TILT);
 	}
 	in_trans->Translate(0,z_displacement,0);
 }
 
-void Strand::StationaryRotate(vtkTransform* transform ,   double torsion_angle_add){
+void Strand::StationaryRotate(vtkTransform* transform ,   double torsion_angle_add , bool with_tilt = WITH_TILT){
 	double point[3]		=	{0,0,0};
 	double base[3]		=	{0,0,0};
 	double vector[3]	=	{0,0,0};
@@ -86,12 +86,10 @@ void Strand::StationaryRotate(vtkTransform* transform ,   double torsion_angle_a
 	aux_trans->TransformPoint(point,point);
 
 	vtkMath::Subtract(point,base,vector);
-
-	transform->Translate(0,0,init_pos[0]*k);
-	transform->RotateY(init_pos[1]);
+	// apply (concatenate) the transformations
 	transform->Translate(vector);
-	transform->RotateWXYZ(init_torsion_angle,point[0],point[1],point[2]);
-
+	if (with_tilt)
+		transform->RotateWXYZ(init_torsion_angle,point[0],point[1],point[2]);
 }
 
 double Strand::TwistAngleFlexible(double in_length){
@@ -103,7 +101,7 @@ double Strand::TwistAngleFlexible(double in_length){
 
 double Strand::TwistAngle(double in_length){
 	double k	=	1/cos(init_torsion_angle * DEG_2_RAD);
-	if (init_pos[0]!=0)
+	if (init_pos[0] != 0)
 		return  atan(in_length*sin(init_torsion_angle * DEG_2_RAD)/(init_pos[0]*k) ) * RAD_2_DEG;
 	else return 0;
 }

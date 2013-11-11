@@ -8,7 +8,8 @@
 #ifndef MACROS_H_
 #define MACROS_H_
 
-#define MAX_HIETATCHY_COMPLEXITY	50
+#define NANOMETER					10
+#define MAX_HIERARCHY_COMPLEXITY	50
 
 #define RAD_2_DEG					57.2957795131
 #define DEG_2_RAD					0.01745329251
@@ -23,7 +24,7 @@
 #define R_STR						"r"
 #define Z_STR						"z"
 #define LENGTH_STR					"length"
-#define DIAMETER_STR					"diameter"
+#define DIAMETER_STR				"diameter"
 #define NUMBER_OF_ROWS_STR			"number_of_rows"
 
 #define SWING_STR					"swing"
