@@ -15,6 +15,7 @@
 #include <vector>
 #include "Residue.h"
 #include "chain.h"
+#include "strand.h"
 using namespace std;
 
 
@@ -29,6 +30,9 @@ public:
 	int addChain(char);
 	int printInfo(int);
 	int writeFile(char*);
+	static void TransformToY(PDB*);
+	double CalcLength();
+	static void Transformer(PDB *pdb_in,PDB *pdb_out,Strand* ,unsigned int);
 };
 
 

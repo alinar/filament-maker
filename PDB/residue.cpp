@@ -26,3 +26,17 @@ void Residue::addAtom(const string str){
 	atoms.back().line	=	str;
 
 }
+void Residue::addAtom(const Atom *atom_new){
+
+	atoms.resize(atoms.size()+1);
+	atoms.back().element=	atom_new->element;
+	atoms.back().name	=	atom_new->name;
+	atoms.back().posX	=	atom_new->posX;
+	atoms.back().posY	=	atom_new->posY;
+	atoms.back().posZ	=	atom_new->posZ;
+	atoms.back().occu	=	atom_new->occu;
+	atoms.back().temp	=	atom_new->temp;
+	atoms.back().residue=	atom_new->residue;
+
+	atoms.back().line	=	atom_new->line;
+}

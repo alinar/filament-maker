@@ -8,6 +8,7 @@
 #ifndef ATOM_H_
 #define ATOM_H_
 #include <string>
+#include <vtkTransform.h>
 using namespace std;
 
 class Atom {
@@ -20,6 +21,7 @@ public:
 
 	Atom();
 	virtual ~Atom();
+	void ApplyTransform(vtkTransform*);
 };
 
 #endif /* ATOM_H_ */

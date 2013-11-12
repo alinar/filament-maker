@@ -16,6 +16,7 @@
 #include <vtk-6.0/vtkSmartPointer.h>
 #include <vtk-6.0/vtkTransform.h>
 #include "PDB.h"
+#include "strand.h"
 using namespace std;
 
 PDB::~PDB(){
@@ -95,10 +96,10 @@ int PDB::writeFile(char* file_name){
 			for (unsigned int k=0; k < chains.at(i).residues.at(j).atoms.size() ; k++){
 				atom_line=chains.at(i).residues.at(j).atoms.at(k).line;
 				//=== atom count ===
-				sprintf(atom_number,"%5d",n );
+				sprintf(atom_number,"%5d",n % 100000 );
 				atom_line.replace(6,5,atom_number);
 				//=== residue count ===
-				sprintf(res_num,"%4d",m );
+				sprintf(res_num,"%4d",m % 10000 );
 				atom_line.replace(22,4,res_num);
 				//=== atom position ===
 				sprintf(atomX,"%8.3f",chains.at(i).residues.at(j).atoms.at(k).posX );
@@ -107,7 +108,8 @@ int PDB::writeFile(char* file_name){
 				atom_line.replace(30,8,atomX);
 				atom_line.replace(38,8,atomY);
 				atom_line.replace(46,8,atomZ);
-
+				//=== chain ID ===
+				atom_line.replace(21,1,1,chains.at(i).chainID);
 				file << atom_line<< endl;
 				n++;
 			}
@@ -119,7 +121,7 @@ int PDB::writeFile(char* file_name){
 		sprintf(atom_number,"%5d",n);
 		term_line.replace(6,5,atom_number);
 		term_line.replace(17,3,chains.at(i).residues.back().type);
-		term_line.replace(21,1,&chains.at(i).chainID);
+		term_line.replace(21,1,1,chains.at(i).chainID);
 		sprintf(res_num,"%4d",m-1);
 		term_line.replace(22,4,res_num);
 		file << term_line <<endl ;
@@ -131,9 +133,48 @@ int PDB::writeFile(char* file_name){
 	return 1;
 }
 
+double PDB::CalcLength(){
+	double min=chains.at(0).residues.at(0).atoms.at(1).posY;
+	double max=min;
+	double aux;
+	for (unsigned int i=0; i < chains.size() ; i++){
+		for (unsigned int j=0; j < chains.at(i).residues.size() ; j++){
+			aux	=	chains.at(i).residues.at(j).atoms.at(1).posY;
+			min	=	(aux < min)? aux:min;
+			max	=	(aux > max)? aux:max;
+		}
+	}
+	return max-min;
+}
 
+void PDB::Transformer(PDB *pdb_in,PDB *pdb_out,Strand* strand,unsigned int num_dimeres_in_strand){
+	if (!strand->IsElemtalStrand()){
+		for (unsigned int i=0 ; i < strand->sub_strands.size() ; i++){
+			PDB::Transformer(pdb_in,pdb_out,strand->sub_strands.at(i),num_dimeres_in_strand);
+		}
+		return;
+	}
+	double atom_height_in_dimere , atom_total_height;
+	double dimere_length	=	pdb_in->CalcLength();
+	for (unsigned int t=0; t < num_dimeres_in_strand ; t++){
+		for (unsigned int i=0; i < pdb_in->chains.size() ; i++){
+			pdb_out->addChain(pdb_in->chains.at(i).chainID);
+			for (unsigned int j=0; j < pdb_in->chains.at(i).residues.size() ; j++){
+				pdb_out->chains.back().addResidue(pdb_in->chains.at(i).residues.at(j).type);
+				for (unsigned int k=0; k < pdb_in->chains.at(i).residues.at(j).atoms.size() ; k++){
+					pdb_out->chains.back().residues.back().addAtom(&pdb_in->chains.at(i).residues.at(j).atoms.at(k));
+					atom_height_in_dimere	=	pdb_out->chains.back().residues.back().atoms.back().posY;
+					atom_total_height		=	t * dimere_length + atom_height_in_dimere;
+					//transform
+					pdb_out->chains.back().residues.back().atoms.back().ApplyTransform(strand->AtomTransform(atom_total_height,atom_height_in_dimere));
+				}
+			}
+		}
+	}
+	return;
+}
 
-void calc (PDB* pdb_obj){
+void PDB::TransformToY (PDB* pdb_obj){
 	double pos[3],vector[3],pos_add_1[3]={0,0,0},pos_add_2[3]={0,0,0};
 	unsigned int i,j,k,k_aux=0;
 	unsigned int n=0,m=0;
@@ -189,10 +230,11 @@ void calc (PDB* pdb_obj){
 	trans->RotateY(theta);
 	double alpha = atan (sqrt(vector[0]*vector[0]+vector[2]*vector[2])/vector[1]) * 180 / M_PI;
 	trans->RotateZ(alpha);
-	cout<<"vector before trans:" <<vector[0] <<","<<vector[1] <<","<<vector[2] <<endl;
+	//cout<<"vector before trans:" <<vector[0] <<","<<vector[1] <<","<<vector[2] <<endl;
 	trans->TransformVector(vector,vector);
-	cout<<"vector after trans:" <<vector[0] <<","<<vector[1] <<","<<vector[2] <<endl;
-	cout<<"theta = "<< theta << endl << "alpha = " << alpha<< endl;
+	//cout<<"vector after trans:" <<vector[0] <<","<<vector[1] <<","<<vector[2] <<endl;
+	//cout<<"theta = "<< theta << endl << "alpha = " << alpha<< endl;
+
 	//==============	section		======================
 
 	for (i=0; i < pdb_obj->chains.size() ; i++){
@@ -210,22 +252,5 @@ void calc (PDB* pdb_obj){
 		}
 	}
 
-}
-
-
-int main (int argc, char *argv[]){
-	if (argc == 2){
-		PDB pdb;
-		char *out_file = "1.pdb";
-		pdb.readFile(argv[1]);
-		pdb.readLines();
-		//pdb.printInfo(3);
-
-		//==============================================
-		calc(&pdb);
-		pdb.writeFile(out_file);
-	}
-	else cout <<"Please enter a file name as the input PDB."<< endl ;
-	return 0;
 }
 

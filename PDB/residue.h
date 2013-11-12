@@ -25,6 +25,7 @@ public:
 	Residue():type(3,'X'){};
 	virtual ~Residue();
 	void addAtom(const string);
+	void addAtom(const Atom*);
 };
 
 #endif /* RESIDUE_H_ */
