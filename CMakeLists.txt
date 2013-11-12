@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 
 PROJECT(main)
 
-include_directories("/usr/local/include/rapidxml-1.13/" ${main_SOURCE_DIR}/pdb)
+include_directories("/usr/local/include/rapidxml-1.13/" ${main_SOURCE_DIR} ${main_SOURCE_DIR}/pdb)
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 add_subdirectory(pdb)
