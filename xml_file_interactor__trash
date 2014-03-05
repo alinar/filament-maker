@@ -22,7 +22,6 @@ XMLFileInteractor::~XMLFileInteractor() {
 			strands.at(i)=NULL;
 		}
 	}
-	if (packing) delete packing;
 }
 
 int XMLFileInteractor::ReadFile(char* file_name){
@@ -51,13 +50,12 @@ void XMLFileInteractor::MakeStructure(){
 	if (filament_node){
 		attr	=	filament_node->first_attribute(NUMBER_OF_ROWS_STR);
 		if (attr) number_of_rows=atoi(attr->value());
-		attr	=	filament_node->first_attribute(LENGTH_STR);
-		if (attr) filament_length=atoi(attr->value()) * NANOMETER;
+
 		master_strand = AddNewStrand();
 		master_strand->supreme_strand	=	true;
 		RecursiveAdd (filament_node,master_strand);
 	}
-	else cerr << "There should be a node with the name \"filament\" in the XML file. " << endl;
+	else cerr << "There shout be a node with the name \"filament\" in the XML file. " << endl;
 
 	for (unsigned int i=0;i<number_of_rows;i++){
 		master_strand->Seed();
@@ -74,7 +72,7 @@ void XMLFileInteractor::RecursiveAdd(xml_node<> *parent_node, Strand *parent_str
 	xml_attribute<>* diameter;
 	for (xml_node<> *child_node	=	parent_node->first_node(STRAND_STR) ;
 			child_node;
-			child_node	=	child_node->next_sibling(STRAND_STR) )
+			child_node	=	child_node->next_sibling() )
 	{
 		child_strand	=	AddNewStrand();
 		parent_strand->AddStrand(child_strand);
@@ -94,7 +92,7 @@ void XMLFileInteractor::RecursiveAdd(xml_node<> *parent_node, Strand *parent_str
 	}
 	for (xml_node<> *child_node	=	parent_node->first_node(BASIC_STRAND_STR) ;
 			child_node;
-			child_node	=	child_node->next_sibling(BASIC_STRAND_STR) ){
+			child_node	=	child_node->next_sibling() ){
 		child_strand	=	AddNewElementalStrand();
 		parent_strand->AddStrand(child_strand);
 		r				=	child_node->first_attribute(R_STR);
@@ -114,45 +112,7 @@ void XMLFileInteractor::RecursiveAdd(xml_node<> *parent_node, Strand *parent_str
 			child_strand->stationary_rotation=true;
 	}
 }
-int XMLFileInteractor::ReadPacking(){
-	double alpha,beta,gamma,x,y,z;
-	xml_attribute<> *alpha_atr,*beta_atr,*gamma_atr,*x_atr,*y_atr,*z_atr;
-	xml_node<> *packing_node = doc.first_node(PACKING_STR);
-	if (packing_node){
-		packing	=	new Packing(this->master_strand);
-		cout << "read packing information from the xml file...";
-		for (xml_node<> *unit	=	packing_node->first_node(UNIT_STR) ;
-				unit;
-				unit	=	unit->next_sibling(UNIT_STR) ){
-			alpha_atr	=	unit->first_attribute(ALPHA_STR);
-			beta_atr	=	unit->first_attribute(BETA_STR);
-			gamma_atr	=	unit->first_attribute(GAMMA_STR);
-			x_atr		=	unit->first_attribute(X_STR);
-			y_atr		=	unit->first_attribute(Y_STR);
-			z_atr		=	unit->first_attribute(Z_STR);
-			if (alpha_atr)	alpha	=	atof(alpha_atr->value());
-			if (beta_atr)	beta	=	atof(beta_atr->value());
-			if (gamma_atr)	gamma	=	atof(gamma_atr->value());
-			if (x_atr)		x		=	atof(x_atr->value()) * NANOMETER;
-			if (y_atr)		y		=	atof(y_atr->value()) * NANOMETER;
-			if (z_atr)		z		=	atof(z_atr->value()) * NANOMETER;
-			packing->AddUnit(alpha,beta,gamma,x,y,z);
-		}
-		xml_node<> *cuboid	=	packing_node->first_node(CUBOID_STR);
-		if (cuboid) {
-			x_atr		=	cuboid->first_attribute(X_STR);
-			y_atr		=	cuboid->first_attribute(Y_STR);
-			z_atr		=	cuboid->first_attribute(Z_STR);
-			if (x_atr)	packing->cuboid_x	=	atof(x_atr->value()) * NANOMETER;
-			if (y_atr)	packing->cuboid_y	=	atof(y_atr->value()) * NANOMETER;
-			if (z_atr)	packing->cuboid_z	=	atof(z_atr->value()) * NANOMETER;
 
-		}
-		cout << "successful" << endl ;
-		return 1;
-	}
-	else return 0;
-}
 Strand* XMLFileInteractor::AddNewStrand(){
 	Strand *new_strand = new Strand;
 	strands.push_back(new_strand);

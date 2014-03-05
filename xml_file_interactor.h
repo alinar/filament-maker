@@ -16,6 +16,7 @@
 #include "macros.h"
 #include "strand.h"
 #include "elemental_strand.h"
+#include "packing.h"
 using namespace rapidxml;
 using namespace std;
 
@@ -25,12 +26,13 @@ protected:
 	char*			str;
 	vector<Strand*>	strands;
 	int number_of_rows;
-
 	int ReadFile(char*);
 	Strand*				AddNewStrand();
 	ElementalStrand*	AddNewElementalStrand();
 public:
 	Strand* master_strand;
+	double filament_length;
+	Packing*		packing;
 
 	XMLFileInteractor(char*);
 	virtual ~XMLFileInteractor();
@@ -38,6 +40,7 @@ public:
 	int WriteFile(char*);
 	void Parse();
 	void RecursiveAdd(xml_node<>*, Strand*);
+	int ReadPacking();
 };
 
 #endif /* XML_FILE_INTERACTOR_H_ */

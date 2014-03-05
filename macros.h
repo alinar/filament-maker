@@ -31,4 +31,12 @@
 #define ROTATIONAL_STR				"rotational"
 #define STATIONARY_STR				"stationary"
 
+#define PACKING_STR					"packing"
+#define UNIT_STR					"unit"
+#define CUBOID_STR					"cuboid"
+#define ALPHA_STR					"alpha"
+#define BETA_STR					"beta"
+#define GAMMA_STR					"gamma"
+#define X_STR						"x"
+#define Y_STR						"y"
 #endif /* MACROS_H_ */

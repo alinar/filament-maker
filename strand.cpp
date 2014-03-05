@@ -38,10 +38,11 @@ void Strand::Show(){
 	axes->AxisLabelsOff();
 	axes->SetTotalLength(10,10,10);
 
-	//Add actors:
+	/*Add actors:
 	renderer->AddActor(axes);
-	this->Show(renderer);
+    */
 
+	this->Show(renderer);
 	// Render and interact
 	renderWindow->SetWindowName("Filament");
 	renderWindow->Render();
