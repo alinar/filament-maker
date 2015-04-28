@@ -33,6 +33,7 @@ public:
 	Strand* master_strand;
 	double filament_length;
 	Packing*		packing;
+	char*			output_file;
 
 	XMLFileInteractor(char*);
 	virtual ~XMLFileInteractor();

@@ -4,9 +4,9 @@
  *  Created on: Oct 24, 2013
  *      Author: alinar
  */
-
+#include <iostream>
 #include "xml_file_interactor.h"
-
+using namespace std;
 using namespace rapidxml;
 
 XMLFileInteractor::XMLFileInteractor(char* file_name) {
@@ -53,6 +53,8 @@ void XMLFileInteractor::MakeStructure(){
 		if (attr) number_of_rows=atoi(attr->value());
 		attr	=	filament_node->first_attribute(LENGTH_STR);
 		if (attr) filament_length=atoi(attr->value()) * NANOMETER;
+		attr	=	filament_node->first_attribute(FILE_OUT);
+		if (attr) output_file=(attr->value());
 		master_strand = AddNewStrand();
 		master_strand->supreme_strand	=	true;
 		RecursiveAdd (filament_node,master_strand);

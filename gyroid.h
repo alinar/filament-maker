@@ -20,7 +20,8 @@ public:
 	vtkSmartPointer<vtkDataArray>		surface_normal ;
 	vtkSmartPointer<vtkDataObject>		surface_data ;
 	PDB pdb[3];
-	double period;
+	double side_length;
+	unsigned int step_number;
 
 	void reset(){this->iterator = 0;}
 	double Function(double x,double y, double z){
@@ -29,8 +30,7 @@ public:
 	int GetNextTransform(vtkTransform*);
 	void PrepareMolecules();
 	vtkTransform* ExtractTransform(double*,double*);
-	explicit Gyroid(double);
-
+	explicit Gyroid(double side_length_);
 //protected:
 	vtkIdType iterator;
 	vtkIdType N_poly;

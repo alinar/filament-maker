@@ -32,7 +32,7 @@ vtkSmartPointer<vtkTransform> Packing::UnitTransformer(unsigned int unit_number)
 	trans->RotateY(gamma.at(unit_number));
 	trans->RotateX(beta.at(unit_number));
 	trans->RotateY(alpha.at(unit_number));
-	trans->Translate(pos_x.at(unit_number),pos_y.at(unit_number),pos_z.at(unit_number));
+	trans->Translate(pos_y.at(unit_number),pos_z.at(unit_number),pos_x.at(unit_number));
 	return trans;
 }
 

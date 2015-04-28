@@ -32,7 +32,7 @@ public:
 	vtkSmartPointer<vtkActor> actor;
 
 
-	Cylinder(double,double);
+	Cylinder(double h=11.0,double r=1.0);
 	virtual ~Cylinder();
 	int Show (vtkRenderer*);
 	int Show ();

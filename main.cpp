@@ -18,26 +18,26 @@
 #include "gyroid.h"
 #include <vtktransform.h>
 
-void MakePdbFile(Strand *strand,char *filename){
+void MakePdbFile(Strand *strand,char *filename,char *file_out){
 	PDB pdb,pdb_out;
-	char *out_file2 = "filament.pdb";
 	pdb.readFile(filename);
 	pdb.readLines();
 	//pdb.printInfo(3);
 	//==============================================
 	PDB::TransformToY(&pdb);
 	//pdb.writeFile(out_file1);
-	PDB::Transformer(&pdb,&pdb_out,strand,3);
-	pdb_out.writeFile(out_file2);
+	PDB::Transformer(&pdb,&pdb_out,strand,7);
+	pdb_out.writeFile(file_out);
 
 }
 
 void MakePacking(XMLFileInteractor* interactor,char *dimer_file){
-	PDB dimer,unit,pack_pdb,cube_pdb;
+	PDB dimer,unit,pack_pdb,cube_pdb,twice_pack;
 	Packing *packing	=	interactor->packing;
 	char *dimer_file_2 = "dimer.pdb";
 	char *pack_file = "pack.pdb";
 	char *unit_file = "unit.pdb";
+	char *twice_file = "twice_cell.pdb";
 	dimer.readFile(dimer_file);
 	dimer.readLines();
 	PDB::TransformToY(&dimer);
@@ -49,7 +49,10 @@ void MakePacking(XMLFileInteractor* interactor,char *dimer_file){
 	packing->packPDB(&unit,&pack_pdb);
 	pack_pdb.CuboidRepeat(packing->cuboid_x,packing->cuboid_y,packing->cuboid_z,&cube_pdb);
 	cube_pdb.writeFile(pack_file);
-	cout<<"The packing is written to the file: "<< unit_file<<endl;
+	cout<<"The packing is written to the file: "<< pack_file<<endl;
+	cube_pdb.TwiceCell(packing->cuboid_x,packing->cuboid_y,packing->cuboid_z,&twice_pack);
+	twice_pack.writeFile(twice_file);
+	cout<<"twice cell is written to the file: "<< twice_file<<endl;
 }
 
 void MakeLipidLayer(Gyroid *gyroid){
@@ -64,39 +67,39 @@ void MakeLipidLayer(Gyroid *gyroid){
 		//cout<<gyroid->iterator<<endl;
 		lipid_cell.CatTransedPDB(trans,&lipid);
 	}
+	cout<<"The lipid cell is being written on the file: "<< file_out<<"...";
 	lipid_cell.writeFile(file_out);
-	cout<<"The lipid cell is written to the file: "<< file_out<<endl;
+	cout << " done."<<endl;
 }
 
 int main(int argc, char *argv[])
 {
-//	if (argc<2) {
-//		cerr << "Please enter an XML file name as the input argument following with the base molecule pdb file."<<endl
-//				<<"Add -v as the third input argument if you want the abstract molecule to be viewed"<<endl;
-//		return EXIT_FAILURE;
-//	}
-//
-//	XMLFileInteractor *xml_file_interactor=new XMLFileInteractor(argv[1]);
-//
-//	xml_file_interactor->MakeStructure();
-//
-//	if (argc>=4) {
-//		cout<<"Viewing the abstract..."<<endl;
-//		xml_file_interactor->master_strand->Show();
-//	}
+	if (argc<2) {
+		cerr << "Please enter an XML file name as the input argument following with the base molecule pdb file."<<endl
+				<<"Add -v as the third input argument if you want the abstract molecule to be viewed"<<endl;
+		return EXIT_FAILURE;
+	}
 
-//	MakePdbFile(xml_file_interactor->master_strand,argv[2]);
+	XMLFileInteractor *xml_file_interactor=new XMLFileInteractor(argv[1]);
 
-//	if 	(xml_file_interactor->ReadPacking())
-//			MakePacking(xml_file_interactor,argv[2]);
+	xml_file_interactor->MakeStructure();
 
+	if (argc>=4) {
+		cout<<"Viewing the abstract..."<<endl;
+		xml_file_interactor->master_strand->Show();
+	}
+	MakePdbFile(xml_file_interactor->master_strand,argv[2],xml_file_interactor->output_file);
+
+	if 	(xml_file_interactor->ReadPacking())
+			MakePacking(xml_file_interactor,argv[2]);
 
 
-	Gyroid *gyroid	=	new Gyroid(796);
+
+//	Gyroid *gyroid	=	new Gyroid(796);
 	//gyroid->PrepareMolecules();
-	MakeLipidLayer(gyroid);
+//	MakeLipidLayer(gyroid);
 
-//	delete xml_file_interactor;
-	delete gyroid;
+	delete xml_file_interactor;
+//	delete gyroid;
 	return EXIT_SUCCESS;
 }

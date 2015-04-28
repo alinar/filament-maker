@@ -23,6 +23,7 @@ Sphere::Sphere() : radius(1.0) {
 	mapper->SetInputConnection(this->vtk_Sphere->GetOutputPort());
 	actor->SetMapper(this->mapper);
 	actor->GetProperty()->SetColor(1,0,0);
+
 }
 
 Sphere::~Sphere() {

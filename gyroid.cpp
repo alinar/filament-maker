@@ -13,6 +13,50 @@
 #include <vtkDataArray.h>
 #include <vtkMath.h>
 #include <cmath>
+
+Gyroid::Gyroid(double side_length_) : iterator(0),N_poly(0),step_number(32){
+	this->side_length	=	side_length_;
+	this->marchingCubes	=	vtkSmartPointer<vtkMarchingCubes>::New();
+	vtkSmartPointer<vtkImageData> volume	=	vtkSmartPointer<vtkImageData>::New();
+
+	vtkCell	*cell;
+	vtkPolygon *polygon;
+	double pos[3];
+	double x,y,z,f;
+	double step	=	4 * M_PI / double(this->step_number);
+	volume->SetDimensions(this->step_number, this->step_number, this->step_number);
+	volume->AllocateScalars(VTK_DOUBLE,1);
+	for ( int i=0 ; i<this->step_number ; i++){
+		for ( int j=0 ; j<this->step_number ; j++){
+			for ( int k=0 ; k<this->step_number ; k++){
+				x=i*step;
+				y=j*step;
+				z=k*step;
+				f=sin(x)*cos(y)+sin(y)*cos(z)+sin(z)*cos(x);
+				volume->SetScalarComponentFromDouble(i,j,k,0,f);
+			}
+		}
+	}
+
+	this->marchingCubes->SetInputData(volume);
+	this->marchingCubes->ComputeNormalsOn();
+	this->marchingCubes->SetValue(0, 0);
+	//	surface->SetValue(1, -1.49);
+	//	surface->SetValue(1, 1);
+
+	this->marchingCubes->Update();
+	this->marchingCubes->UpdateInformation();
+	surface_poly = this->marchingCubes->GetOutput(0);
+	surface_poly->GetPoints()->Print(cout);
+	cout << surface_poly->GetNumberOfCells()<<endl ;
+	cout << surface_poly->GetNumberOfPoints()<<endl ;
+	//surface_poly->Print(cout);
+	surface_normal=surface_poly->GetPointData()->GetNormals();
+	//surface_normal->Print(cout);
+	this->N_poly = surface_poly->GetNumberOfCells();
+}
+
+
 void Gyroid::PrepareMolecules(){
 	vtkSmartPointer<vtkTransform> trans	=	vtkSmartPointer<vtkTransform>::New();
 	const char	*file1	=	"1.pdb";
@@ -51,50 +95,6 @@ void Gyroid::PrepareMolecules(){
 	out.writeFile("lipid.pdb");
 }
 
-
-Gyroid::Gyroid(double period_):iterator(0),N_poly(0) {
-	this->period	=	period_;
-	this->marchingCubes	=	vtkSmartPointer<vtkMarchingCubes>::New();
-	vtkSmartPointer<vtkImageData> volume	=	vtkSmartPointer<vtkImageData>::New();
-
-	vtkCell	*cell;
-	vtkPolygon *polygon;
-	int n = 32;
-	double pos[3];
-	double x,y,z,f;
-	double step	=	4 * M_PI / double(n);
-	cout << n << "  step: "<<step<<endl;
-	volume->SetDimensions(n, n, n);
-	volume->AllocateScalars(VTK_DOUBLE,1);
-	for ( int i=0 ; i<n ; i++){
-		for ( int j=0 ; j<n ; j++){
-			for ( int k=0 ; k<n ; k++){
-				x=i*step;
-				y=j*step;
-				z=k*step;
-				f=sin(x)*cos(y)+sin(y)*cos(z)+sin(z)*cos(x);
-				volume->SetScalarComponentFromDouble(i,j,k,0,f);
-			}
-		}
-	}
-
-	this->marchingCubes->SetInputData(volume);
-	this->marchingCubes->ComputeNormalsOn();
-	this->marchingCubes->SetValue(0, 0);
-	//	surface->SetValue(1, -1.49);
-	//	surface->SetValue(1, 1);
-
-	this->marchingCubes->Update();
-	this->marchingCubes->UpdateInformation();
-	surface_poly = this->marchingCubes->GetOutput(0);
-	cout << surface_poly->GetNumberOfCells()<<endl ;
-	cout << surface_poly->GetNumberOfPoints()<<endl ;
-	//surface_poly->Print(cout);
-	surface_normal=surface_poly->GetPointData()->GetNormals();
-	//surface_normal->Print(cout);
-	this->N_poly = surface_poly->GetNumberOfCells();
-}
-
 vtkTransform* Gyroid::ExtractTransform(double *coor,double *normal){
 	vtkSmartPointer<vtkTransform> trans	=	vtkSmartPointer<vtkTransform>::New();
 	trans->Identity();
@@ -129,16 +129,29 @@ int Gyroid::GetNextTransform(vtkTransform* trans){
 		vtkMath::Add(center,coor[i],center);
 		vtkMath::Add(normal,surface_normal->GetTuple(id),normal);
 	}
-	vtkMath::MultiplyScalar(center , this->period / (N * 2 * M_PI) );
+	//cout << center[0]<<","<<center[1]<<","<<center[2]<<endl;
+	vtkMath::MultiplyScalar(center , this->side_length / (N * (this->step_number - 1)) );
 	vtkMath::Normalize(normal);
 	trans->Identity();
 	trans->PostMultiply();
 	double phi,theta;
 	phi		= acos(normal[1]) * RAD_2_DEG;
-	theta	= atan(normal[0]/normal[2]) * RAD_2_DEG;
+	theta	= atan(normal[2]/normal[0]) * RAD_2_DEG;
+	if (normal[0]<0) theta = theta + 180;
+	trans->RotateZ(-1*phi);
+	trans->RotateY(-1*theta);
 	trans->Translate(center);
 	this->iterator++;
+
+//	testing:
+//	double unit_v[3]={0,1.0,0};
+//	trans->TransformVector(unit_v,unit_v);
+//	double angle=acos(vtkMath::Dot(normal,unit_v))*RAD_2_DEG;
+//	if (angle>5 || angle<-5) {
+//		cout<<"transed:"<<unit_v[0]<<unit_v[1]<<unit_v[2];
+//		cout<<" surface:"<<normal[0]<<normal[1]<<normal[2];
+//		cout<<" thera:"<<theta<<" phi:"<<phi;
+//		cout<<" angle:"<<angle<<endl;
+//	}
 	return 1;
-
-
 }
